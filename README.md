@@ -1,54 +1,64 @@
 # data-apoyo
 
-Scripts de apoyo para un puesto **Ubuntu** del Nodo S3. Sirven para ver qué falta y pedir o instalar el mínimo para compilar un APK por línea de comandos.
+Hoja para el personal del nodo. No es la app del hackathon. No ejecutar `install.sh`.
 
-No es la entrega del hackathon. No trae código de la app, modelo ni arquitectura del reto.
+Motivo: compilar un APK Android e instalarlo por USB. No hace falta Android Studio ni GPU.
 
-## 1. Ver qué falta
+Cada comando va solo. Ubuntu 26.04.
 
-Si ya tienes `git`:
-
-```bash
-git clone https://github.com/jhonatanrojas/data-apoyo.git
-cd data-apoyo
-bash check.sh
-```
-
-Si todavía no hay `git`:
+## 1. Java 17
 
 ```bash
-curl -fsSL -o check.sh https://raw.githubusercontent.com/jhonatanrojas/data-apoyo/main/check.sh
-bash check.sh
+sudo apt update
+sudo apt install -y openjdk-17-jdk
+java -version
 ```
 
-Plan A solo si el chequeo marca Java 17, `adb` y `platforms/android-35`.
-
-## 2. Instalar el mínimo
-
-Solo después de que el personal del nodo autorice la instalación:
+## 2. Git y utilidades
 
 ```bash
-bash install.sh
-source "$HOME/.android-dev-env.sh"
-bash check.sh
+sudo apt install -y git unzip wget curl ca-certificates
 ```
 
-`install.sh` instala:
+## 3. ADB
 
-- OpenJDK 17, git, unzip, wget, curl (vía `apt`, pide `sudo`)
-- Android command-line tools en `$HOME/android-sdk`
-- Solo estos paquetes del SDK: `platform-tools`, `platforms;android-35`, `build-tools;35.0.0`
-- Gradle 8.10.2 en `$HOME/.local/gradle`
+```bash
+sudo apt install -y adb
+adb version
+```
 
-No instala Android Studio, Python ni CUDA. Este puesto no tiene GPU NVIDIA; el entrenamiento no va aquí.
+## 4. Android SDK 35
 
-## Qué decir al levantar la mano
+```bash
+mkdir -p "$HOME/android-sdk/cmdline-tools"
+wget -O /tmp/cmdtools.zip https://dl.google.com/android/repository/commandlinetools-linux-15859902_latest.zip
+unzip -q /tmp/cmdtools.zip -d /tmp/cmdtools
+rm -rf "$HOME/android-sdk/cmdline-tools/latest"
+mv /tmp/cmdtools/cmdline-tools "$HOME/android-sdk/cmdline-tools/latest"
+```
 
-Pedir autorización para instalar:
+```bash
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+export ANDROID_HOME="$HOME/android-sdk"
+export PATH="$JAVA_HOME/bin:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
+yes | sdkmanager --licenses
+sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+```
 
-1. `openjdk-17-jdk`
-2. `git` `unzip` `wget` `curl`
-3. Android SDK de línea de comandos, solo `platform-tools`, `platforms;android-35` y `build-tools;35.0.0`
-4. Gradle 8.10.2
+El paquete `platform-tools` incluye otro `adb`, el que usa el proyecto.
 
-El script `install.sh` hace exactamente eso.
+## 5. Gradle 8.10.2
+
+```bash
+mkdir -p "$HOME/.local/gradle"
+wget -O /tmp/gradle.zip https://services.gradle.org/distributions/gradle-8.10.2-bin.zip
+unzip -q /tmp/gradle.zip -d "$HOME/.local/gradle"
+```
+
+## Variables para el participante
+
+```bash
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+export ANDROID_HOME="$HOME/android-sdk"
+export PATH="$JAVA_HOME/bin:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$HOME/.local/gradle/gradle-8.10.2/bin:$PATH"
+```

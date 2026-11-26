@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-# Instala el mínimo para compilar un APK en Ubuntu, sin Android Studio.
-# Pide sudo solo para apt. El SDK y Gradle quedan en el home del usuario.
+# NO USAR en el nodo. El personal autorizado instala con los comandos sueltos del README.
+# Este archivo queda solo como referencia y no debe ejecutarse en el evento.
+echo "No ejecutar este script. El personal instala con los comandos individuales del README."
+exit 1
 set -euo pipefail
 
 if [ "$(id -u)" -eq 0 ]; then
